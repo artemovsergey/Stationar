@@ -10,7 +10,10 @@ public class StationarContext : DbContext
     public DbSet<Place> Places { get; set; }
     public DbSet<Room> Rooms { get; set; }
 
-
+    public StationarContext()
+    {
+        Database.Migrate();
+    }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlServer("Server=(localdb)\\Mssqllocaldb;Database=StationarDatabase;Trusted_Connection=true");

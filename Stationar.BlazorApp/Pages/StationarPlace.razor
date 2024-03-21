@@ -11,6 +11,7 @@
 
 <h3>Мониторинг состояния стационара по коечному фонду</h3>
 
+
 @if(rooms == null)
 {
     <h3> Загрузка комнатs...</h3>
@@ -29,11 +30,19 @@ else
                 @foreach (var p in r.Places)
                 {
 
-                <div class="container border border-2 border-warning" draggable="true" @ondragstart="HandleDragStart"
-                                                                                       @ondrop="HandleDrop"
-                                                                                      >
-                       <div> Место: @p.Id</div>
-                        Пациент: @p.Patient.Name
+                <div class="container border border-2 border-warning" draggable="true" @ondragstart="(e) => HandleDragStart(e,p)"
+                                                                                       @ondrop="(e) => HandleDrop(e,p)"
+                                                                                       ondragover="event.preventDefault();">
+                    @if(p.Patient != null)
+                    {
+                        <div> Место: @p.Id</div>
+                        <h3> Пациент: @p.Patient.Name</h3>
+                    }
+                    else
+                    {
+                        <h3>Место свободно </h3>
+                    }
+
                 </div>
 
                 }
@@ -44,7 +53,7 @@ else
 
 
 @code {
-
+    Place currentTargetPlace;
 
     IEnumerable<Room> rooms = new List<Room>();
     string t;
@@ -56,20 +65,22 @@ else
 
     }
 
-    private void AllowDrop(DragEventArgs e)
-    {
 
-        Console.WriteLine($"Детали: {e.Detail.ToString()}");
+    private async Task HandleDragStart(DragEventArgs e,Place p)
+    {
+        Console.Out.WriteLine($"Передан объект: {p.Patient.Name}");
     }
 
-    private async Task HandleDragStart(DragEventArgs e)
+
+    private void HandleDrop(DragEventArgs e,Place p)
     {
-        
+        currentTargetPlace = p;
+        Console.WriteLine($"Целевой объект: {currentTargetPlace.Patient.Name}");
     }
 
-    private async Task HandleDrop(DragEventArgs e)
-    {
-
-    }
+    // private void HandleDragLeave()
+    // {
+    //     currentTargetPlace = null;
+    // }
 
 }

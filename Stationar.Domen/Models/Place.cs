@@ -3,7 +3,7 @@
 public class Place : Base
 {
 
-    public int PatientId { get; set; }
+    public int? PatientId { get; set; } = null;
     public Patient? Patient { get; set; } = null;
 
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Stationar.Domen.Models;
 
@@ -11,9 +12,11 @@ using Stationar.Domen.Models;
 namespace Stationar.Domen.Migrations
 {
     [DbContext(typeof(StationarContext))]
-    partial class StationarContextModelSnapshot : ModelSnapshot
+    [Migration("20240321155641_AllowNullPatient")]
+    partial class AllowNullPatient
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

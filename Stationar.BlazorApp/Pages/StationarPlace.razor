@@ -1,0 +1,75 @@
+﻿@page "/s"
+
+<PageTitle>Мониторинг</PageTitle>
+
+@using Microsoft.EntityFrameworkCore;
+@using Stationar.Domen.Models;
+@inject StationarContext db
+
+
+@using Plk.Blazor.DragDrop
+
+<h3>Мониторинг состояния стационара по коечному фонду</h3>
+
+@if(rooms == null)
+{
+    <h3> Загрузка комнатs...</h3>
+}
+else
+
+
+    @foreach(var r in rooms)
+    {
+        <div class="room container border border-3 border-primary"  >
+
+        
+
+                Номер палаты: @r.Number
+
+                @foreach (var p in r.Places)
+                {
+
+                <div class="container border border-2 border-warning" draggable="true" @ondragstart="HandleDragStart"
+                                                                                       @ondrop="HandleDrop"
+                                                                                      >
+                       <div> Место: @p.Id</div>
+                        Пациент: @p.Patient.Name
+                </div>
+
+                }
+
+        </div>
+    }
+
+
+
+@code {
+
+
+    IEnumerable<Room> rooms = new List<Room>();
+    string t;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        rooms = await db.Rooms.Include(r => r.Places).ThenInclude(p => p.Patient).ToListAsync();
+
+    }
+
+    private void AllowDrop(DragEventArgs e)
+    {
+
+        Console.WriteLine($"Детали: {e.Detail.ToString()}");
+    }
+
+    private async Task HandleDragStart(DragEventArgs e)
+    {
+        
+    }
+
+    private async Task HandleDrop(DragEventArgs e)
+    {
+
+    }
+
+}

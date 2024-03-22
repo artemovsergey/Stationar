@@ -1,4 +1,5 @@
 ﻿@page "/s"
+@page "/"
 
 <PageTitle>Мониторинг</PageTitle>
 
@@ -6,49 +7,79 @@
 @using Stationar.Domen.Models;
 @inject StationarContext db
 
+<style>
+    .room {
+    background-color: #4679BD; /* Blue background */
+    width: 200px; /* Example width */
+    height: 400px; /* Example height */
+    display: flex; /* Use flexbox for layout */
+    flex-wrap: wrap; /* Allow wrapping of items */
+    justify-content: space-around; /* Space items evenly */
+    align-items: center; /* Center items vertically */
+    padding: 20px; /* Add some padding inside the room */
+}
+
+.place {
+    background-color: #FFFFFF; /* White background */
+    width: 100px; /* Example width for places */
+    height: 50px; /* Example height for places */
+    margin: 10px; /* Add some margin around places */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #FFC107; /* Yellow border for places */
+}
+</style>
+
 
 <h3>Мониторинг состояния стационара по коечному фонду</h3>
 
-
-@if(rooms == null)
+@if(departaments == null)
 {
-    <h3> Загрузка комнатs...</h3>
+    <h3> Загрузка данных...</h3>
 }
 else
+{
+    @foreach (var d in departaments)
+    {
+        <h3> Отделение:  @d.Name </h3>
 
-
-
-
-
-    @foreach(var r in rooms)
+        @foreach (var r in d.Rooms)
         {
             <div class="room container border border-3 border-primary">
 
-                    Номер палаты: @r.Number
+                Номер палаты: @r.Number
 
-                    @foreach (var p in r.Places)
-                    {
+                @foreach (var p in r.Places)
+                {
 
-                    <div class="container border border-2 border-warning" draggable="true" @ondragstart="(e) => HandleDragStart(e,p)"
-                                                                                           @ondrop="(e) => HandleDrop(e,p)"
-                                                                                           ondragover="event.preventDefault();">
-                        @if(p.Patient != null)
+                    <div class="place container border border-2 border-warning" draggable="true" @ondragstart="(e) => HandleDragStart(e,p)"
+                                                                                                 @ondrop="(e) => HandleDrop(e,p)"
+                                                                                                 ondragover="event.preventDefault();">
+                        @if (p.Patient != null)
                         {
-                            <div> Место: @p.Id</div>
-                            <h3> Пациент: @p.Patient.Name</h3>
+                            <div> @p.Id</div>
+                            <h7> @p.Patient.Name</h7>
                         }
                         else
                         {
-                            <div> Место: @p.Id</div>
-                            <h3>Место свободно </h3>
+                            <div> @p.Id</div>
+                            <h7></h7>
                         }
 
                     </div>
 
-                    }
+                }
 
             </div>
         }
+    }
+}
+
+
+
+    
 
 
 
@@ -57,11 +88,14 @@ else
     Place currentTargetPlace;
 
     IEnumerable<Room> rooms = new List<Room>();
+    IEnumerable<Departament> departaments = new List<Departament>();
+
 
     protected override async Task OnInitializedAsync()
     {
 
         rooms = await db.Rooms.Include(r => r.Places).ThenInclude(p => p.Patient).ToListAsync();
+        departaments = await db.Departaments.Include(d => d.Rooms).ToListAsync();
         
     }
 
@@ -119,10 +153,5 @@ else
         }
 
     }
-
-    // private void HandleDragLeave()
-    // {
-    //     currentTargetPlace = null;
-    // }
 
 }

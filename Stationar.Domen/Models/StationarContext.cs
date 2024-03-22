@@ -16,8 +16,8 @@ public class StationarContext : DbContext
     }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        //optionsBuilder.UseSqlServer("Server=(localdb)\\Mssqllocaldb;Database=StationarDatabase;Trusted_Connection=true");
-        optionsBuilder.UseSqlServer("Server=sql.stud.scc;Database=StationarDatabase;User=asv;Password=asv202;TrustServerCertificate=True");
+        optionsBuilder.UseSqlServer("Server=(localdb)\\Mssqllocaldb;Database=StationarDatabase;Trusted_Connection=true");
+        //optionsBuilder.UseSqlServer("Server=sql.stud.scc;Database=StationarDatabase;User=asv;Password=asv202;TrustServerCertificate=True");
     }
 
 }

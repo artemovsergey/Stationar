@@ -7,8 +7,6 @@
 @inject StationarContext db
 
 
-@using Plk.Blazor.DragDrop
-
 <h3>Мониторинг состояния стационара по коечному фонду</h3>
 
 
@@ -19,63 +17,107 @@
 else
 
 
+
+
+
     @foreach(var r in rooms)
-    {
-        <div class="room container border border-3 border-primary"  >
+        {
+            <div class="room container border border-3 border-primary">
 
-        
+                    Номер палаты: @r.Number
 
-                Номер палаты: @r.Number
-
-                @foreach (var p in r.Places)
-                {
-
-                <div class="container border border-2 border-warning" draggable="true" @ondragstart="(e) => HandleDragStart(e,p)"
-                                                                                       @ondrop="(e) => HandleDrop(e,p)"
-                                                                                       ondragover="event.preventDefault();">
-                    @if(p.Patient != null)
+                    @foreach (var p in r.Places)
                     {
-                        <div> Место: @p.Id</div>
-                        <h3> Пациент: @p.Patient.Name</h3>
+
+                    <div class="container border border-2 border-warning" draggable="true" @ondragstart="(e) => HandleDragStart(e,p)"
+                                                                                           @ondrop="(e) => HandleDrop(e,p)"
+                                                                                           ondragover="event.preventDefault();">
+                        @if(p.Patient != null)
+                        {
+                            <div> Место: @p.Id</div>
+                            <h3> Пациент: @p.Patient.Name</h3>
+                        }
+                        else
+                        {
+                            <div> Место: @p.Id</div>
+                            <h3>Место свободно </h3>
+                        }
+
+                    </div>
+
                     }
-                    else
-                    {
-                        <h3>Место свободно </h3>
-                    }
 
-                </div>
-
-                }
-
-        </div>
-    }
+            </div>
+        }
 
 
 
 @code {
+
     Place currentTargetPlace;
 
     IEnumerable<Room> rooms = new List<Room>();
-    string t;
 
     protected override async Task OnInitializedAsync()
     {
 
         rooms = await db.Rooms.Include(r => r.Places).ThenInclude(p => p.Patient).ToListAsync();
-
+        
     }
 
 
     private async Task HandleDragStart(DragEventArgs e,Place p)
     {
-        Console.Out.WriteLine($"Передан объект: {p.Patient.Name}");
+        // перемещаем, если место не пустое
+
+        if(p.Patient != null)
+        {
+            Console.Out.WriteLine($"Передан объект: {p.Patient.Name}"); 
+            currentTargetPlace = p;
+
+        }
+        else
+        {
+            Console.Out.WriteLine($"Передан объект: пустое место. Нельзя перемещать пустое место!");
+        }
+
     }
 
 
     private void HandleDrop(DragEventArgs e,Place p)
     {
-        currentTargetPlace = p;
-        Console.WriteLine($"Целевой объект: {currentTargetPlace.Patient.Name}");
+
+        if(p.Patient != null)
+        {
+            Console.WriteLine($"Целевой объект: {p.Patient.Name} уже занимает это место!");
+            return;
+        }
+        else
+        {
+            Console.WriteLine($"Целевой объект: пустое место");
+
+            // обновляем пациента для нового места
+            p.PatientId = currentTargetPlace.PatientId;
+
+
+            // старое место пациента освобождаем
+            currentTargetPlace.PatientId = null;
+
+
+            try
+            {
+                db.Places.Update(p);
+                db.Places.Update(currentTargetPlace);
+                db.SaveChanges();
+                Console.WriteLine("Операции успешно завершены!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка: {ex.InnerException.Message}");
+            }
+
+        }
+
     }
 
     // private void HandleDragLeave()
